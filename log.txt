@@ -1,0 +1,124 @@
+import React, { Component } from "react";
+
+class LoginForm extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      email: "",
+      password: "",
+      isFormSubmitted: false,
+      errors: {
+        email: "",
+        password: "",
+      },
+    };
+  }
+
+  handleInputChange = (event) => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+  };
+
+  handleInputBlur = (event) => {
+    const { name } = event.target;
+    this.validateField(name);
+  };
+
+  validateField = (fieldName) => {
+    let errors = { ...this.state.errors };
+    let fieldValue = this.state[fieldName];
+
+    switch (fieldName) {
+      case "email":
+        errors.email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fieldValue)
+          ? ""
+          : "Invalid email address";
+        break;
+      case "password":
+        errors.password = fieldValue.length >= 5 ? "" : "Password too short";
+        break;
+      default:
+        break;
+    }
+
+    this.setState({ errors });
+  };
+
+  validateForm = () => {
+    let errors = { ...this.state.errors };
+
+    Object.keys(this.state).forEach((fieldName) => {
+      if (["email", "password"].includes(fieldName)) {
+        this.validateField(fieldName);
+      }
+    });
+
+    return Object.values(errors).every((error) => error === "");
+  };
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+    if (this.validateForm()) {
+      const { email, password } = this.state;
+      if (email === "abc@gmail.com" && password === "12345") {
+        this.setState({ isFormSubmitted: true });
+      }
+    }
+  };
+
+  renderEmailField = () => {
+    const { email, errors } = this.state;
+    return (
+      <div>
+        <label htmlFor="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={email}
+          onChange={this.handleInputChange}
+          onBlur={this.handleInputBlur}
+        />
+        {errors.email && <span>{errors.email}</span>}
+      </div>
+    );
+  };
+
+  renderPasswordField = () => {
+    const { password, errors } = this.state;
+    return (
+      <div>
+        <label htmlFor="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          value={password}
+          onChange={this.handleInputChange}
+          onBlur={this.handleInputBlur}
+        />
+        {errors.password && <span>{errors.password}</span>}
+      </div>
+    );
+  };
+
+  renderLoginForm = () => {
+    const { isFormSubmitted } = this.state;
+    return (
+      <form onSubmit={this.handleSubmit}>
+        {this.renderEmailField()}
+        {this.renderPasswordField()}
+        <button type="submit" disabled={!this.validateForm() || isFormSubmitted}>
+          Log In
+        </button>
+      </form>
+    );
+  };
+
+  render() {
+    return <div>{this.renderLoginForm()}</div>;
+  }
+}
+
+export default LoginForm;
